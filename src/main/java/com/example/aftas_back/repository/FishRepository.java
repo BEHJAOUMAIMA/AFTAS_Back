@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FishRepository extends JpaRepository<Fish, Long> {
+    Fish findByName(String name);
+
 }
