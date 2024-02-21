@@ -3,7 +3,7 @@ package com.example.aftas_back.service;
 import com.example.aftas_back.domain.Competition;
 import com.example.aftas_back.domain.Fish;
 import com.example.aftas_back.domain.Hunting;
-import com.example.aftas_back.domain.Member;
+import com.example.aftas_back.domain.User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +16,6 @@ public interface HuntingService {
     List<Hunting> getByMember(Long memberId);
     List<Hunting> getByCompetitionAndMember(String codeCompetition, Long memberId);
     Hunting update(Hunting hunting, Long id);
-    Hunting checkIfFishAlreadyHunted(Member member, Competition competition, Fish fish);
+    Hunting checkIfFishAlreadyHunted(User member, Competition competition, Fish fish);
     void delete(Long id);
 }

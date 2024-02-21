@@ -4,7 +4,7 @@ package com.example.aftas_back.domain;
 import com.example.aftas_back.domain.enums.IdentityDocumentType;
 import jakarta.persistence.*;
 import lombok.*;
-
+/*
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -38,3 +38,4 @@ public class Member {
     private List<Hunting> huntings;
 }
 
+*/

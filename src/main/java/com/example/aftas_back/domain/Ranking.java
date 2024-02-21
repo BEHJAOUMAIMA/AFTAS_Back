@@ -19,9 +19,9 @@ public class Ranking {
     private RankId id;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
-    @MapsId("memberId")
-    private Member member;
+    @JoinColumn(name = "user_id")
+    @MapsId("userId")
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "competition_id")

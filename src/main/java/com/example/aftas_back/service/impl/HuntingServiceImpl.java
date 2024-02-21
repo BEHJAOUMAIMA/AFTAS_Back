@@ -20,11 +20,11 @@ public class HuntingServiceImpl implements HuntingService {
     @Override
     public Hunting save(Hunting hunting, Double weight) {
         hunting.setFish(fishService.getByName(hunting.getFish().getName()));
-        Ranking ranking = rankingService.findByMemberAndCompetition(hunting.getMember().getId(), hunting.getCompetition().getCode());
+        Ranking ranking = rankingService.findByMemberAndCompetition(hunting.getUser().getId(), hunting.getCompetition().getCode());
         if (weight >= hunting.getFish().getAverageWeight() && ranking != null){
             hunting.setCompetition(competitionService.getByCode(hunting.getCompetition().getCode()));
-            hunting.setMember(memberService.findById(hunting.getMember().getId()).orElse(null));
-            Hunting existingHunt = checkIfFishAlreadyHunted(hunting.getMember(), hunting.getCompetition(), hunting.getFish());
+            hunting.setUser(memberService.findById(hunting.getUser().getId()).orElse(null));
+            Hunting existingHunt = checkIfFishAlreadyHunted(hunting.getUser(), hunting.getCompetition(), hunting.getFish());
             ranking.setScore(ranking.getScore() + hunting.getFish().getLevel().getPoints());
             rankingService.update(ranking);
             if(existingHunt == null){
@@ -71,20 +71,22 @@ public class HuntingServiceImpl implements HuntingService {
             existingHunting.setNumberOfFish(hunting.getNumberOfFish());
             return huntingRepository.save(existingHunting);
         }
-        return null;    }
+        return null;
+    }
 
     @Override
-    public Hunting checkIfFishAlreadyHunted(Member member, Competition competition, Fish fish) {
+    public Hunting checkIfFishAlreadyHunted(User member, Competition competition, Fish fish) {
         List<Hunting> allHunts = getAll();
         if (allHunts.isEmpty()) {
             return null;
         }
         List<Hunting> hunts = allHunts.stream()
-                .filter(hunting -> hunting.getMember()
+                .filter(hunting -> hunting.getUser()
                         .equals(member) && hunting.getCompetition()
                         .equals(competition) && hunting.getFish()
                         .equals(fish)).toList();
-        return hunts.isEmpty() ? null : hunts.get(0);    }
+        return hunts.isEmpty() ? null : hunts.get(0);
+    }
 
     @Override
     public void delete(Long id) {

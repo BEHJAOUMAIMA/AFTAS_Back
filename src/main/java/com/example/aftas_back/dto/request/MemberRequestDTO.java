@@ -1,6 +1,6 @@
 package com.example.aftas_back.dto.request;
 
-import com.example.aftas_back.domain.Member;
+import com.example.aftas_back.domain.User;
 import com.example.aftas_back.domain.enums.IdentityDocumentType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -38,8 +38,8 @@ public record MemberRequestDTO(
         @Size(min = 1, max = 20, message = "Identity number must be between 1 and 20 characters")
         String identityNumber
 ) {
-    public Member toMember() {
-        return Member.builder()
+    public User toMember() {
+        return User.builder()
                 .name(this.name)
                 .familyName(this.familyName)
                 .accessionDate(this.accessionDate)

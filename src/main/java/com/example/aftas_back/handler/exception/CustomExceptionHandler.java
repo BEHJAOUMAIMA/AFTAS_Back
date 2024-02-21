@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class CustomExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity handleValidationExceptions(MethodArgumentNotValidException e){
+    public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException e){
         Map<String, List<String>> errors = e.getBindingResult()
                 .getFieldErrors()
                 .stream()

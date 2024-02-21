@@ -23,7 +23,7 @@ public class Hunting {
 
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Member member;
+    private User user;
 
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)

@@ -1,6 +1,6 @@
 package com.example.aftas_back.dto.response;
 
-import com.example.aftas_back.domain.Member;
+import com.example.aftas_back.domain.User;
 import com.example.aftas_back.domain.enums.IdentityDocumentType;
 
 import java.time.LocalDateTime;
@@ -14,15 +14,15 @@ public record MemberResponseDTO(
         IdentityDocumentType identityDocumentType,
         String identityNumber
 ) {
-    public static MemberResponseDTO fromMember(Member member) {
+    public static MemberResponseDTO fromMember(User user) {
         return new MemberResponseDTO(
-                member.getId(),
-                member.getName(),
-                member.getFamilyName(),
-                member.getAccessionDate(),
-                member.getNationality(),
-                member.getIdentityDocumentType(),
-                member.getIdentityNumber()
+                user.getId(),
+                user.getName(),
+                user.getFamilyName(),
+                user.getAccessionDate(),
+                user.getNationality(),
+                user.getIdentityDocumentType(),
+                user.getIdentityNumber()
         );
     }
 }

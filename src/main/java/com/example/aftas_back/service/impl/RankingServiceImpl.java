@@ -1,9 +1,9 @@
 package com.example.aftas_back.service.impl;
 
 import com.example.aftas_back.domain.Competition;
-import com.example.aftas_back.domain.Member;
 import com.example.aftas_back.domain.RankId;
 import com.example.aftas_back.domain.Ranking;
+import com.example.aftas_back.domain.User;
 import com.example.aftas_back.handler.exception.OperationException;
 import com.example.aftas_back.repository.RankingRepository;
 import com.example.aftas_back.service.CompetitionService;
@@ -28,16 +28,16 @@ public class RankingServiceImpl implements RankingService {
     @Override
     public Ranking save(Ranking ranking) {
         Long competitionId = ranking.getCompetition().getId();
-        Long memberId = ranking.getMember().getId();
+        Long userId = ranking.getUser().getId();
 
         Competition competition = competitionService.findById(competitionId)
                 .orElseThrow(() -> new OperationException("Competition id " + competitionId + " not found"));
 
-        Member member = memberService.findById(memberId)
-                .orElseThrow(() -> new OperationException("Member id " + memberId + " not found"));
+        User user = memberService.findById(userId)
+                .orElseThrow(() -> new OperationException("Member id " + userId + " not found"));
 
-        if (competition.getRankings().stream().anyMatch(r -> r.getMember().equals(member))) {
-            throw new OperationException("Member id " + memberId + " is already registered for the competition");
+        if (competition.getRankings().stream().anyMatch(r -> r.getUser().equals(user))) {
+            throw new OperationException("Member id " + userId + " is already registered for the competition");
         }
 
         if(competition.getStartTime().isBefore(competition.getStartTime().minusHours(24))){
@@ -59,11 +59,11 @@ public class RankingServiceImpl implements RankingService {
 
         ranking.setScore(0);
         ranking.setCompetition(competition);
-        ranking.setMember(member);
+        ranking.setUser(user);
 
         RankId rankId = new RankId();
         rankId.setCompetitionId(competitionId);
-        rankId.setMemberId(memberId);
+        rankId.setUserId(userId);
         ranking.setId(rankId);
 
         return rankingRepository.save(ranking);
@@ -92,9 +92,9 @@ public class RankingServiceImpl implements RankingService {
 
     @Override
     public Ranking findByMemberAndCompetition(Long member, String competition) {
-        Optional<Member> member1 = memberService.findById(member);
+        Optional<User> user = memberService.findById(member);
         Competition competition1 = competitionService.getByCode(competition);
-        return rankingRepository.getRankingByMemberAndCompetition(member1, competition1);
+        return rankingRepository.getRankingByMemberAndCompetition(user, competition1);
     }
 
     @Override
@@ -112,7 +112,7 @@ public class RankingServiceImpl implements RankingService {
 
     @Override
     public Ranking update(Ranking rankingUpdated) {
-        Ranking existingRanking = findByMemberAndCompetition(rankingUpdated.getMember().getId(), rankingUpdated.getCompetition().getCode());
+        Ranking existingRanking = findByMemberAndCompetition(rankingUpdated.getUser().getId(), rankingUpdated.getCompetition().getCode());
         if (existingRanking != null){
             existingRanking.setRank(rankingUpdated.getRank());
             existingRanking.setScore(rankingUpdated.getScore());
