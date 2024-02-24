@@ -1,6 +1,7 @@
 package com.example.aftas_back.domain;
 
 import com.example.aftas_back.domain.enums.IdentityDocumentType;
+import com.example.aftas_back.domain.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,13 +35,13 @@ public class User implements UserDetails {
     private String password;
     private Boolean enabled;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id")
+
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.getName()));
+        return role.getAuthorities();
     }
 
     @Override
