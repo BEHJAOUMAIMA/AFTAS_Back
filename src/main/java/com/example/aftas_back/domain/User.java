@@ -8,12 +8,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
 
 @Entity
 @Data
@@ -34,7 +32,7 @@ public class User implements UserDetails {
     private String identityNumber;
     private String email;
     private String password;
-    private Boolean enabled;
+    private boolean status;
 
 
     @Enumerated(EnumType.STRING)
@@ -71,5 +69,8 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+    public boolean isStatus() {
+        return status;
     }
 }

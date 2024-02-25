@@ -5,6 +5,7 @@ import com.example.aftas_back.dto.request.MemberRequestDTO;
 import com.example.aftas_back.dto.response.MemberResponseDTO;
 import com.example.aftas_back.handler.response.ResponseMessage;
 import com.example.aftas_back.service.MemberService;
+import com.example.aftas_back.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +17,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/members")
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('MANAGER', 'JURY')")
 public class MemberRest {
     private final MemberService memberService;
+    private final UserService userService;
     @GetMapping
     @PreAuthorize("hasAuthority('VIEW_USERS') and hasAnyRole('JURY', 'MANAGER')")
     public ResponseEntity<List<MemberResponseDTO>> getAllMembers() {
@@ -91,6 +93,13 @@ public class MemberRest {
         memberService.delete(id);
 
         return ResponseMessage.ok("Member deleted successfully with ID: " + id, null);
+    }
+
+    @PutMapping("/{userId}/enable")
+    @PreAuthorize("hasAuthority('ENABLE_ACCOUNT') and hasRole('MANAGER')")
+    public ResponseEntity<?> enableUser(@PathVariable Long userId) {
+        User enabledUser = userService.enableUser(userId);
+        return ResponseEntity.ok(enabledUser);
     }
 
 }

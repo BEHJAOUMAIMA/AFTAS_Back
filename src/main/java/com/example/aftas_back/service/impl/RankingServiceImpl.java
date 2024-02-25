@@ -10,6 +10,7 @@ import com.example.aftas_back.security.jwt.JwtService;
 import com.example.aftas_back.service.CompetitionService;
 import com.example.aftas_back.service.MemberService;
 import com.example.aftas_back.service.RankingService;
+import com.example.aftas_back.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -29,11 +30,17 @@ public class RankingServiceImpl implements RankingService {
     private final CompetitionService competitionService;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final UserService userService;
 
     @Override
     public Ranking save(Ranking ranking) {
 
         Long currentUserId = getUserIdFromToken();
+        User currentUser = userService.getUserById(currentUserId);
+
+        if (currentUser.isStatus()) {
+            throw new OperationException("Your account is not activated. Please contact the admin to activate your account.");
+        }
 
         Competition competition = competitionService.findById(ranking.getCompetition().getId())
                 .orElseThrow(() -> new OperationException("Competition not found"));

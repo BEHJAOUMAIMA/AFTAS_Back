@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
                 .password(passwordEncoder.encode(userRequest.getPassword()))
                 .role(userRequest.getRole())
                 .accessionDate(LocalDate.now().atStartOfDay())
-                .enabled(true)
+                .status(true)
                 .build();
 
         return userRepository.save(user);
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long id) {
-
+        userRepository.deleteById(id);
     }
 
     @Override
@@ -80,9 +80,7 @@ public class UserServiceImpl implements UserService {
     public User enableUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        user.setEnabled(true);
-
+        user.setStatus(true);
         return userRepository.save(user);
     }
 }

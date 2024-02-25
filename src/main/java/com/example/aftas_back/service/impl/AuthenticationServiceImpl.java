@@ -52,7 +52,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.MEMBER)
                 .accessionDate(LocalDate.now().atStartOfDay())
-                .enabled(false)
+                .status(false)
                 .build();
 
         user = userRepository.save(user);
