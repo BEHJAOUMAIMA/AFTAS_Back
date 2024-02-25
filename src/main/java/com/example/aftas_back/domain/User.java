@@ -29,6 +29,7 @@ public class User implements UserDetails {
     private String familyName;
     private LocalDateTime accessionDate;
     private String nationality;
+    @Enumerated( EnumType.STRING )
     private IdentityDocumentType identityDocumentType;
     private String identityNumber;
     private String email;
@@ -38,6 +39,9 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    public User(Long currentUserId) {
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

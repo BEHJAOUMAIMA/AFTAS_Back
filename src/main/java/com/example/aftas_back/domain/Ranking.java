@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class Ranking {
-    private Integer rank;
+    private Integer position;
 
     private Integer score;
 

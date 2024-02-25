@@ -20,19 +20,19 @@ public class JwtServiceImpl implements JwtService{
 
     @Value("${token.signIn.key}")
     private String SECRET_KEY;
+
+    @Value("${application.security.jwt.expiration}")
+    private Long jwtExpiration;
+    @Value("${application.security.jwt.refresh-token.expiration}")
+    private Long refreshExpiration;
+
     @Override
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
     @Override
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return Jwts.builder()
-                .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                .compact();
+        return buildToken(extraClaims, userDetails,jwtExpiration);
     }
     @Override
     public String generateToken(UserDetails userDetails) {
@@ -44,6 +44,20 @@ public class JwtServiceImpl implements JwtService{
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
+    private String buildToken(
+            Map<String, Object> extraClaims,
+            UserDetails userDetails,
+            long expiration
+    ) {
+        return Jwts
+                .builder()
+                .setClaims(extraClaims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
@@ -68,5 +82,12 @@ public class JwtServiceImpl implements JwtService{
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    @Override
+    public Long getUserIdFromToken(String token) {
+        String jwt = token.substring(7);
+        Claims claims = Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(jwt).getBody();
+        return Long.parseLong((String) claims.get("userId"));
     }
 }

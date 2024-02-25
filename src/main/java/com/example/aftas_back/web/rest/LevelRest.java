@@ -8,6 +8,7 @@ import com.example.aftas_back.service.LevelService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,10 +18,12 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/v1/levels")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('MANAGER','JURY')")
 public class LevelRest {
 
     private final LevelService levelService;
     @GetMapping
+    @PreAuthorize("hasAuthority('VIEW_LEVEL') and hasAnyRole('JURY', 'MANAGER')")
     public ResponseEntity<List<LevelResponseDTO>> getAllLevels() {
 
         List<Level> levels = levelService.findAll();
@@ -32,6 +35,7 @@ public class LevelRest {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('VIEW_LEVEL') and hasAnyRole('JURY', 'MANAGER')")
     public ResponseEntity<?> getLevelById(@PathVariable Long id) {
 
         Optional<Level> level = levelService.findById(id);
@@ -46,6 +50,7 @@ public class LevelRest {
     }
 
     @PostMapping("/save")
+    @PreAuthorize("hasAuthority('CREATE_LEVEL') and hasAnyRole('JURY', 'MANAGER')")
     public ResponseEntity<ResponseMessage> addLevel(@Valid @RequestBody LevelRequestDTO levelRequestDTO) {
         Level level = levelService.save(levelRequestDTO.toLevel());
         if(level == null) {
@@ -56,6 +61,7 @@ public class LevelRest {
     }
 
     @PutMapping("/update/{levelId}")
+    @PreAuthorize("hasAuthority('UPDATE_LEVEL') and hasAnyRole('JURY', 'MANAGER')")
     public ResponseEntity<ResponseMessage> updateLevel(@PathVariable Long levelId, @Valid @RequestBody LevelRequestDTO levelRequestDTO) {
 
         Level updatedLevel = levelRequestDTO.toLevel();
@@ -66,6 +72,7 @@ public class LevelRest {
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('DELETE_LEVEL') and hasRole('MANAGER')")
     public ResponseEntity<?> deleteLevel(@PathVariable Long id) {
         Optional<Level> existingLevel = levelService.findById(id);
 

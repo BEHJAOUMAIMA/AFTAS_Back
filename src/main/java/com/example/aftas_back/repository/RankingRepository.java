@@ -16,10 +16,10 @@ import java.util.Optional;
 @Repository
 public interface RankingRepository extends JpaRepository<Ranking, RankId> {
     List<Ranking> findByCompetitionId(Long competitionId);
-    List<Ranking> getRankingByMember(User member);
+    List<Ranking> getRankingByUser(User member);
     List<Ranking> getRankingByCompetition(Competition competition);
-    Ranking getRankingByMemberAndCompetition(Optional<User> member, Competition competition);
-    @Query("SELECT MAX(r.rank) FROM Ranking r WHERE r.id.competitionId = :competitionId")
+    Ranking getRankingByUserAndCompetition(Optional<User> member, Competition competition);
+    @Query("SELECT MAX(r.position) FROM Ranking r WHERE r.id.competitionId = :competitionId")
     Integer findMaxRankByCompetitionId(@Param("competitionId") Long competitionId);
 
 }

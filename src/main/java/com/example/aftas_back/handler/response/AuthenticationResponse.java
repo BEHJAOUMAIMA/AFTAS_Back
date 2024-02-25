@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.List;
 
@@ -19,6 +20,8 @@ public class AuthenticationResponse {
     private String email;
 
     private List<String> roles;
+
+    private List<SimpleGrantedAuthority> authorities;
 
     @JsonProperty("access_token")
     private String accessToken;

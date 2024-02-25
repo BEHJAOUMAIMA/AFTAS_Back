@@ -15,35 +15,33 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterRequest {
-    @NotBlank(message = "firstname is required")
-    @NotNull
+    @NotBlank
+    @NotNull(message = "firstname is required")
     private String name;
 
-    @NotBlank(message = "lastname is required")
-    @NotNull
+    @NotBlank
+    @NotNull(message = "lastname is required")
     private String familyName;
 
-    @NotBlank(message = "nationality is required")
-    @NotNull
+    @NotBlank
+    @NotNull(message = "nationality is required")
     private String nationality;
 
-    @NotBlank(message = "identityDocumentType is required")
-    @NotNull
+    @NotNull(message = "identityDocumentType is required")
     private IdentityDocumentType identityDocumentType;
 
-    @NotBlank(message = "identityNumber is required")
-    @NotNull
+    @NotNull(message = "identityNumber is required")
     private String identityNumber;
 
-    @NotBlank(message = "email is required")
     @Email(message = "email format is not valid")
+    @NotNull
     private String email;
 
-    @NotBlank(message = "password is required")
     @NotNull
     private String password;
 
     @NotNull
-    private Role role;
+    private String confirmedPassword;
+
 
 }

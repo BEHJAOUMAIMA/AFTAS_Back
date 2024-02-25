@@ -9,6 +9,7 @@ import com.example.aftas_back.service.HuntingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,10 +17,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/hunting")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('MANAGER','JURY')")
 public class HuntingRest {
     private final HuntingService huntingService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('VIEW_HUNTING') and hasAnyRole('JURY', 'MANAGER')")
     public ResponseEntity<?> getAll(){
         List<Hunting> hunts = huntingService.getAll();
         if (hunts.isEmpty()) {
@@ -31,6 +34,7 @@ public class HuntingRest {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('VIEW_HUNTING') and hasAnyRole('JURY', 'MANAGER')")
     public ResponseEntity<?> getHuntingById(@PathVariable Long id){
         Hunting hunting = huntingService.getById(id);
         if(hunting == null){
@@ -42,6 +46,7 @@ public class HuntingRest {
     }
 
     @PostMapping("/save")
+    @PreAuthorize("hasAuthority('CREATE_HUNTING') and hasAnyRole('JURY', 'MANAGER')")
     public ResponseEntity<?> save(@RequestBody @Valid HuntingRequestDTO hunting){
         Hunting hunting1 = huntingService.save(hunting.toHunting(), hunting.weight());
         if (hunting1 == null) {
@@ -53,6 +58,7 @@ public class HuntingRest {
     }
 
     @GetMapping("/member/{member}")
+    @PreAuthorize("hasAuthority('VIEW_HUNTING') and hasAnyRole('JURY', 'MANAGER')")
     public ResponseEntity<?> getHuntingByMember(@PathVariable Long member){
         List<Hunting> hunts = huntingService.getByMember(member);
         if(hunts == null) {
@@ -64,6 +70,7 @@ public class HuntingRest {
     }
 
     @GetMapping("/competition/{competition}")
+    @PreAuthorize("hasAuthority('VIEW_HUNTING') and hasAnyRole('JURY', 'MANAGER')")
     public ResponseEntity<?> getHuntingByCompetition(@PathVariable String competition){
         List<Hunting> hunts = huntingService.getByCompetition(competition);
         if(hunts == null) {
@@ -75,6 +82,7 @@ public class HuntingRest {
     }
 
     @GetMapping("/competition_and_member/{competition}/{member}")
+    @PreAuthorize("hasAuthority('VIEW_HUNTING') and hasAnyRole('JURY', 'MANAGER')")
     public ResponseEntity<?> getHuntingByCompetitionAndMember(@PathVariable String competition, @PathVariable Long member){
         List<Hunting> hunts = huntingService.getByCompetitionAndMember(competition, member);
         if(hunts == null) {
@@ -86,6 +94,8 @@ public class HuntingRest {
     }
 
     @PutMapping("/update/{id}")
+    @PreAuthorize("hasAuthority('UPDATE_HUNTING') and hasAnyRole('JURY', 'MANAGER')")
+
     public ResponseEntity<?> update(@RequestBody UpdateHuntingRequestDTO hunting, @PathVariable Long id){
         Hunting hunting1 = huntingService.update(hunting.toHunting(), id);
         if (hunting1 == null) {
@@ -97,6 +107,7 @@ public class HuntingRest {
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('DELETE_HUNTING') and hasAnyRole('JURY', 'MANAGER')")
     public ResponseEntity<?> delete(@PathVariable Long id){
         Hunting hunting = huntingService.getById(id);
         if (hunting == null) {

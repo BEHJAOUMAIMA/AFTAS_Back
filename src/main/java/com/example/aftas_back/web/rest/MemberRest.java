@@ -8,6 +8,7 @@ import com.example.aftas_back.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,9 +18,11 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/v1/members")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('MANAGER', 'JURY')")
 public class MemberRest {
     private final MemberService memberService;
     @GetMapping
+    @PreAuthorize("hasAuthority('VIEW_USERS') and hasAnyRole('JURY', 'MANAGER')")
     public ResponseEntity<List<MemberResponseDTO>> getAllMembers() {
         List<User> members = memberService.findAll();
         List<MemberResponseDTO> memberDTOs = members.stream()
@@ -30,6 +33,7 @@ public class MemberRest {
     }
 
     @PostMapping("/save")
+    @PreAuthorize("hasAuthority('CREATE_USERS') and hasRole('MANAGER')")
     public ResponseEntity<ResponseMessage> addMember(@Valid @RequestBody MemberRequestDTO memberDTO) {
         User savedMember = memberService.save(memberDTO.toMember());
 
@@ -41,6 +45,7 @@ public class MemberRest {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('VIEW_USERS') and hasAnyRole('JURY', 'MANAGER')")
     public ResponseEntity<?> getMemberById(@PathVariable Long id) {
         Optional<User> member = memberService.findById(id);
 
@@ -53,6 +58,7 @@ public class MemberRest {
     }
 
     @PutMapping("/update/{id}")
+    @PreAuthorize("hasAuthority('UPDATE_USERS') and hasRole('MANAGER')")
     public ResponseEntity<?> updateMember(@PathVariable Long id, @Valid @RequestBody MemberRequestDTO memberDTO) {
         Optional<User> existingMember = memberService.findById(id);
 
@@ -74,6 +80,7 @@ public class MemberRest {
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('DELETE_USERS') and hasRole('MANAGER')")
     public ResponseEntity<?> deleteMember(@PathVariable Long id) {
         Optional<User> existingMember = memberService.findById(id);
 

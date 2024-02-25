@@ -12,7 +12,7 @@ public record RankingResponseDTO(
         return new RankingResponseDTO(
                 ranking.getUser().getId(),
                 ranking.getCompetition().getId(),
-                ranking.getRank(),
+                ranking.getPosition(),
                 ranking.getScore()
         );
     }

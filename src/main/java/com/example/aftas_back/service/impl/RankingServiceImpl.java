@@ -6,10 +6,14 @@ import com.example.aftas_back.domain.Ranking;
 import com.example.aftas_back.domain.User;
 import com.example.aftas_back.handler.exception.OperationException;
 import com.example.aftas_back.repository.RankingRepository;
+import com.example.aftas_back.security.jwt.JwtService;
 import com.example.aftas_back.service.CompetitionService;
 import com.example.aftas_back.service.MemberService;
 import com.example.aftas_back.service.RankingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
@@ -23,49 +27,37 @@ public class RankingServiceImpl implements RankingService {
     private final RankingRepository rankingRepository;
     private final MemberService memberService;
     private final CompetitionService competitionService;
-
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @Override
     public Ranking save(Ranking ranking) {
-        Long competitionId = ranking.getCompetition().getId();
-        Long userId = ranking.getUser().getId();
 
-        Competition competition = competitionService.findById(competitionId)
-                .orElseThrow(() -> new OperationException("Competition id " + competitionId + " not found"));
+        Long currentUserId = getUserIdFromToken();
 
-        User user = memberService.findById(userId)
-                .orElseThrow(() -> new OperationException("Member id " + userId + " not found"));
+        Competition competition = competitionService.findById(ranking.getCompetition().getId())
+                .orElseThrow(() -> new OperationException("Competition not found"));
 
-        if (competition.getRankings().stream().anyMatch(r -> r.getUser().equals(user))) {
-            throw new OperationException("Member id " + userId + " is already registered for the competition");
+        if (competition.getRankings().stream().anyMatch(r -> r.getUser().getId().equals(currentUserId))) {
+            throw new OperationException("You are already registered for this competition");
         }
 
-        if(competition.getStartTime().isBefore(competition.getStartTime().minusHours(24))){
-            throw new OperationException("Competition id " + competitionId + " is closed for registration");
+        if (competition.getStartTime().isBefore(competition.getStartTime().minusHours(24))) {
+            throw new OperationException("Competition is closed for registration");
         }
 
         Integer remainingParticipants = competition.getNumberOfParticipants();
-
         if (remainingParticipants <= 0) {
             throw new OperationException("No more available slots for participants in the competition");
         }
+
         competition.setNumberOfParticipants(remainingParticipants - 1);
+        competitionService.update(competition, ranking.getCompetition().getId());
 
-        competitionService.update(competition, competitionId);
-
-        Integer maxRank = rankingRepository.findMaxRankByCompetitionId(competitionId);
-
-        ranking.setRank(maxRank != null ? maxRank + 1 : 1);
-
+        Integer maxRank = rankingRepository.findMaxRankByCompetitionId(competition.getId());
+        ranking.setPosition(maxRank != null ? maxRank + 1 : 1);
         ranking.setScore(0);
-        ranking.setCompetition(competition);
-        ranking.setUser(user);
-
-        RankId rankId = new RankId();
-        rankId.setCompetitionId(competitionId);
-        rankId.setUserId(userId);
-        ranking.setId(rankId);
-
+        ranking.setUser(new User(currentUserId));
         return rankingRepository.save(ranking);
     }
 
@@ -94,7 +86,7 @@ public class RankingServiceImpl implements RankingService {
     public Ranking findByMemberAndCompetition(Long member, String competition) {
         Optional<User> user = memberService.findById(member);
         Competition competition1 = competitionService.getByCode(competition);
-        return rankingRepository.getRankingByMemberAndCompetition(user, competition1);
+        return rankingRepository.getRankingByUserAndCompetition(user, competition1);
     }
 
     @Override
@@ -102,7 +94,7 @@ public class RankingServiceImpl implements RankingService {
         List<Ranking> rankings = findByCompetition(competition).stream().sorted(Comparator.comparing(Ranking::getScore).reversed()).toList();
         if (!rankings.isEmpty()){
             for (int i = 0; i < rankings.size(); i++) {
-                rankings.get(i).setRank(i+1);
+                rankings.get(i).setPosition(i+1);
                 update(rankings.get(i));
             }
             return rankings;
@@ -114,7 +106,7 @@ public class RankingServiceImpl implements RankingService {
     public Ranking update(Ranking rankingUpdated) {
         Ranking existingRanking = findByMemberAndCompetition(rankingUpdated.getUser().getId(), rankingUpdated.getCompetition().getCode());
         if (existingRanking != null){
-            existingRanking.setRank(rankingUpdated.getRank());
+            existingRanking.setPosition(rankingUpdated.getPosition());
             existingRanking.setScore(rankingUpdated.getScore());
             return rankingRepository.save(existingRanking);
         }
@@ -136,5 +128,10 @@ public class RankingServiceImpl implements RankingService {
         return rankings;
     }
 
+    public Long getUserIdFromToken() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = authentication.getName();
+        return jwtService.getUserIdFromToken(currentPrincipalName);
+    }
 
 }

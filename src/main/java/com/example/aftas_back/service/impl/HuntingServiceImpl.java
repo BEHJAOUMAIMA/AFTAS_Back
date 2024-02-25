@@ -55,13 +55,13 @@ public class HuntingServiceImpl implements HuntingService {
 
     @Override
     public List<Hunting> getByMember(Long memberId) {
-        return huntingRepository.getHuntingsByMember(memberService.getById(memberId));
+        return huntingRepository.getHuntingsByUser(memberService.getById(memberId));
     }
 
 
     @Override
     public List<Hunting> getByCompetitionAndMember(String codeCompetition, Long memberId) {
-        return huntingRepository.getHuntingsByCompetitionAndMember(competitionService.getByCode(codeCompetition), memberService.getById(memberId));
+        return huntingRepository.getHuntingsByCompetitionAndUser(competitionService.getByCode(codeCompetition), memberService.getById(memberId));
     }
 
     @Override
